@@ -18,14 +18,10 @@ public class RestTemplateClient {
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final String baseUrl;
-    private final String token;
 
     public RestTemplateClient(
-            @Value("${github.api.base-url:https://api.github.com}") String baseUrl,
-            @Value("${github.token:}") String token
-    ) {
+            @Value("${github.api.base-url:https://api.github.com}") String baseUrl) {
         this.baseUrl = baseUrl;
-        this.token = token;
     }
 
     public GitHubSearchResponse searchRepositories(String query, int page, int perPage) {
@@ -45,9 +41,6 @@ public class RestTemplateClient {
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.ACCEPT, "application/vnd.github+json");
         headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        if (token != null && !token.isBlank()) {
-            headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
-        }
 
         HttpEntity<Void> entity = new HttpEntity<>(headers);
         ResponseEntity<GitHubSearchResponse> response = restTemplate.exchange(

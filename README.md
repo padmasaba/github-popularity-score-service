@@ -1,12 +1,12 @@
 # Github Popularity Score Service
 
 **Github Popularity Score Service** is a backend Spring Boot application that fetches GitHub repositories for a given language, earliest creation date and page limit. 
-It calculates a **popularity score** based on Stars, Forks and Recency of updates
+It calculates a **popularity score** based on Stars, Forks and Recency of updates.
 
 ---
 
 ## **Scoring Algorithm & Configuration**
-The popularity score is calculated by weighted formula (assumed weights: stars 60%, forks 25%, recency 15%, configurable). We normalize and transform the data using logarithmic and exponential calculation:
+The popularity score is calculated by weighted formula (assumed weights: stars 60%, forks 25%, recency 15%, configurable). We normalize and transform the data using logarithmic and exponential calculation.
 
 1. **Stars (`stargazers_count`)** – measures the repository’s popularity.
 2. **Forks (`forks_count`)** – indicates community engagement and adoption.
@@ -16,19 +16,19 @@ The popularity score is calculated by weighted formula (assumed weights: stars 6
 
 1. **Compute individual component scores:**
 
-  - **Stars Score:** logarithmically scaled:
+  - **Stars Score (logarithmically scaled):**
     Stargazer counts are unbounded and can vary by orders of magnitude. Log scaling compresses huge values into a small range so extremes do not dominate. For example: `log10(100) = 2`, `log10(1,000,000) = 6`.
     ```text
     starsScore = log10(1 + stargazers_count)
     ```
     
-  - **Forks Score:** logarithmically scaled:
+  - **Forks Score (logarithmically scaled):**
     Fork counts are also unbounded; using `log10` keeps very large numbers comparable to smaller ones.
     ```text
     forksScore = log10(1 + forks_count)
     ```
     
-  - **Recency Score:** exponential scaled
+  - **Recency Score (exponential scaled):**
     Based on days since last push, we normalize by a half-life:
     Half-life means the freshness value halves every configured period (e.g., 90 days). This exponential term always yields a value between 0 and 1 (1 when updated today, approaching 0 as it gets older).
     ```text
@@ -44,7 +44,7 @@ The popularity score is calculated by weighted formula (assumed weights: stars 6
 ```text
 normalizedScore = 100 * rawScore / maxRawScore
 ```
-- where `maxRawScore` is the highest raw score among the fetched repositories.
+`maxRawScore` is the highest raw score among the fetched repositories.
 
 
 ### Sample Calculations (small → million-scale)
@@ -62,7 +62,7 @@ Example Weighted Score (weights: stars=0.6, forks=0.25, recency=0.15):
 |   100,000  |   5,000 |        120 |                 5.000 |                 3.699 |                       0.397 |                                3.984 |
 | 1,000,000  |  20,000 |        365 |                 6.000 |                 4.301 |                       0.082 |                                4.688 |
 
-> RawScore is unnormalized; final presentation can scale results to 0–100 across the search set considering the.
+> RawScore is unnormalized; final presentation will scale results between 0–100 across the search set considering the maxRawScore.
 
 ## **Features**
 - Fetch repositories via GitHub Search API
@@ -80,25 +80,21 @@ Example Weighted Score (weights: stars=0.6, forks=0.25, recency=0.15):
 
 ### **Configuration via `application.yml`**
 
-- All scoring parameters are configurable in `src/main/resources/application.yml`:
+- Scoring parameters are configurable in `src/main/resources/application.yml`:
 
   ```yaml
-  scoring:
-  stars-weight: 0.6          # Importance of stars in total score
-  forks-weight: 0.25         # Importance of forks in total score
-  recency-weight: 0.15       # Importance of recency in total score
-  recency-half-life-days: 30 # Days it takes for recency contribution to halve
+  popularity.score:
+  stars-weight: 0.6          # Weightage of stars in total score
+  forks-weight: 0.25         # Weightage of forks in total score
+  recency-weight: 0.15       # Weightage of recency in total score
+  recency-half-life-days: 90 # Days it takes for recency value to halve
   ```
-- These weights allow flexibility to tune the scoring formula without modifying code.
+- This configuration allows flexibility to change the weightage contribution without modifying code.
 - recency-half-life-days controls how quickly a repository’s recency decays.
-- Stars are weighted highest to emphasize popularity, forks contribute moderately, and recency has smaller influence.
-
-### **Design Rationale**
-
-- Stars (0.6) dominate because highly starred repositories are typically more popular.
-- Forks (0.25) reflect adoption and engagement.
-- Recency (0.15) slightly favors actively maintained repositories.
-- This approach ensures a balanced popularity score, prioritizing popular repositories while still considering activity and community engagement.
+- Stars (0.6) dominate and are weighted highest because highly starred repositories are typically more popular.
+- Forks (0.25) contribute moderately. It denotes code adoption and engagement.
+- Recency (0.15) has smaller influence favors actively maintained repositories.
+- This approach ensures a balanced popularity score, prioritizing popular repositories while still considering community engagement and recency updates.
 
 ---
 
@@ -106,19 +102,10 @@ Example Weighted Score (weights: stars=0.6, forks=0.25, recency=0.15):
 
 - Java 17
 - Spring Boot 3.5.7
+- Swagger for API testing
 - WebFlux for API calls
 - Jackson for JSON processing
 - Maven for project management
 - Docker for containerization
-
----
-
-## **Getting Started**
-
-### **Prerequisites**
-
-- Java 17 installed
-- Maven installed
-- Docker (optional, for containerized run)
 
 ---

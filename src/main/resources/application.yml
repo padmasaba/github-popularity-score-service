@@ -11,15 +11,10 @@ springdoc:
 github:
   api:
     base-url: https://api.github.com
-  api-version: 2022-11-28
-  token: ${GITHUB_TOKEN:}
-  client:
-    max-in-memory-size: 16777216
-  cache:
-    ttl-minutes: 5
 
-scoring:
-  stars-weight: 0.6
-  forks-weight: 0.25
-  recency-weight: 0.15
-  recency-half-life-days: 30
+popularity:
+  score:
+    stars-weight: 0.6
+    forks-weight: 0.25
+    recency-weight: 0.15
+    recency-half-life-days: 90
