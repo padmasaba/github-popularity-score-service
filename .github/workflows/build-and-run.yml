@@ -7,7 +7,7 @@ on:
 
 permissions:
   contents: read
-  packages: write              # needed to push to ghcr.io
+  packages: write              # needed to push/pull to/from ghcr.io
 
 env:
   IMAGE_NAME: github-popularity-score-service
@@ -99,7 +99,9 @@ jobs:
           docker push $REGISTRY/$IMAGE_NAME:$IMAGE_TAG
 
   # 3️⃣ Run the container for verification
-  # Skip for PRs from forks (untrusted code)
+  # - On main: pull from GHCR and run
+  # - On PRs (non-main): rebuild locally and run
+  # - Skip for PRs from forks (untrusted code)
   run_container:
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false }}
     name: Run and Verify Container
@@ -110,7 +112,59 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run Docker container
+      # MAIN branch: pull the pushed image and run it
+      - name: Log in to GHCR (main only)
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull image from GHCR (main only)
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          docker pull $REGISTRY/$IMAGE_NAME:${{ github.sha }}
+
+      - name: Run container (main only)
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          docker run -d -p 8080:8080 --name app $REGISTRY/$IMAGE_NAME:${{ github.sha }}
+          sleep 10
+          docker ps
+
+      # PRs (not main): rebuild locally (no registry push), then run
+      - name: Set up Docker Buildx (PRs)
+        if: ${{ github.ref != 'refs/heads/main' }}
+        uses: docker/setup-buildx-action@v3
+
+      - name: Locate Dockerfile (PRs)
+        if: ${{ github.ref != 'refs/heads/main' }}
+        id: locate_pr
+        run: |
+          set -e
+          DOCKERFILE=$(git ls-files | grep -E '(^|/)[Dd]ockerfile$' | head -n1 || true)
+          if [ -z "$DOCKERFILE" ]; then
+            DOCKERFILE=$(git ls-files | grep -E '(^|/)[Dd]ockerfile\.[^/]+$' | head -n1 || true)
+          fi
+          if [ -z "$DOCKERFILE" ]; then
+            echo "No Dockerfile found in repo." >&2
+            exit 1
+          fi
+          CONTEXT=$(dirname "$DOCKERFILE")
+          [ "$CONTEXT" = "." ] || [ -z "$CONTEXT" ] && CONTEXT="."
+          echo "dockerfile=$DOCKERFILE" >> "$GITHUB_OUTPUT"
+          echo "context=$CONTEXT" >> "$GITHUB_OUTPUT"
+
+      - name: Build image locally (PRs)
+        if: ${{ github.ref != 'refs/heads/main' }}
+        run: |
+          docker build -t $IMAGE_NAME:${{ github.sha }} \
+            -f "${{ steps.locate_pr.outputs.dockerfile }}" \
+            "${{ steps.locate_pr.outputs.context }}"
+
+      - name: Run container (PRs)
+        if: ${{ github.ref != 'refs/heads/main' }}
         run: |
           docker run -d -p 8080:8080 --name app $IMAGE_NAME:${{ github.sha }}
           sleep 10
