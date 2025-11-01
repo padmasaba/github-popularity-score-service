@@ -72,7 +72,9 @@ Example Weighted Score (weights: stars=0.6, forks=0.25, recency=0.15):
 - Configurable scoring weights and half-life via `application.yml`
 - Graceful handling of GitHub search/rate limits
 - Ready for caching with Spring Cache (in-memory or Redis) if enabled
-- Tested and easy to extend
+- Tested with junit mock test cases and easy to extend
+- Swagger UI is implemented for easy testing
+- Docker Image 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
 
 ---
 
@@ -109,3 +111,6 @@ Example Weighted Score (weights: stars=0.6, forks=0.25, recency=0.15):
 - Docker for containerization
 
 ---
+
+Testing
+https://api.github.com/search/repositories?q=language:node%20created:%3E2024-01-01&sort=stars&order=desc&page=10&per_page=100
