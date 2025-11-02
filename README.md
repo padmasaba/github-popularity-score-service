@@ -34,15 +34,15 @@ The popularity score is calculated by weighted formula (assumed weights: stars 6
     ```
 
 2. **Combine component scores into a weighted raw score:**
-```text
+    ```text
    rawScore = (starsWeight * starsScore) +(forksWeight * forksScore) +(recencyWeight * recencyScore)
-   ```
+    ```
 
 3. **Normalize the scores to a 0–100 range:**
-```text
+    ```text
 normalizedScore = 100 * rawScore / maxRawScore
-```
-`maxRawScore` is the highest raw score among the fetched repositories.
+    ```
+    `maxRawScore` is the highest raw score among the fetched repositories.
 
 ### **Sample Calculations (small → million-scale)**
 
@@ -161,6 +161,7 @@ Make sure the following are installed:
 - **Maven 3.8+**
 - **Docker** *(optional, for containerized run)*
 
+
 ### ▶️ **Run using Maven**
 
 ```bash
@@ -171,8 +172,8 @@ This will start the application on http://localhost:8080.
 
 ### 🏗️ **Or build the executable JAR**
 
-mvn clean package
-java -jar target/github-popularity-score-service-0.0.1-SNAPSHOT.jar
+- mvn clean package
+- java -jar target/github-popularity-score-service-0.0.1-SNAPSHOT.jar
 
 
 ### 🧭 **Access Swagger UI**
@@ -185,12 +186,16 @@ The Swagger UI provides an interactive API console to execute requests and view 
 
 
 ### 🐳 **Docker Support**
-🏗️ Build Docker Image
+
+- 🏗️ **Build Docker Image**
+```bash
 docker build -t github-popularity-score-service .
+```
 
-▶️ Run Container
+- ▶️ **Run Container**
+```bash
 docker run -p 8080:8080 github-popularity-score-service
-
+```
 Then visit:
 👉 http://localhost:8080/swagger-ui.html
 
