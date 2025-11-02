@@ -40,7 +40,7 @@ The popularity score is calculated by weighted formula (assumed weights: stars 6
 
 3. **Normalize the scores to a 0–100 range:**
     ```text
-normalizedScore = 100 * rawScore / maxRawScore
+   normalizedScore = 100 * rawScore / maxRawScore
     ```
     `maxRawScore` is the highest raw score among the fetched repositories.
 
