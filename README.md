@@ -122,6 +122,7 @@ popularity.score:
 - Half-life concept (90 days) → After every 90 days, the recency influence is halved, ensuring older repos naturally lose recency value.
 - This approach ensures a balanced popularity score, prioritizing popular repositories while still considering community engagement and recency updates.
 
+
 ## 🧰 **Tech Stack**
 
 | Component | Technology |
@@ -135,8 +136,6 @@ popularity.score:
 | **Containerization** | Docker |
 | **CI/CD** | GitHub Actions |
 | **Logging** | SLF4J + Logback |
-
----
 
 ## 📘 **API Endpoint**
 
@@ -162,14 +161,13 @@ Make sure the following are installed:
 - **Maven 3.8+**
 - **Docker** *(optional, for containerized run)*
 
----
-
 ### ▶️ **Run using Maven**
 
 ```bash
 mvn clean spring-boot:run
 ```
 This will start the application on http://localhost:8080.
+
 
 ### 🏗️ **Or build the executable JAR**
 
@@ -185,6 +183,7 @@ Once the app is running, explore and test the API directly from the Swagger inte
 
 The Swagger UI provides an interactive API console to execute requests and view live responses.
 
+
 ### 🐳 **Docker Support**
 🏗️ Build Docker Image
 docker build -t github-popularity-score-service .
@@ -195,7 +194,8 @@ docker run -p 8080:8080 github-popularity-score-service
 Then visit:
 👉 http://localhost:8080/swagger-ui.html
 
-### 🧠 **Future Enhancements**
+
+## 🧠 **Future Enhancements**
 
 🔐 GitHub Token Authentication
 To increase API rate limits for authenticated users.
