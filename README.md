@@ -65,8 +65,10 @@ Example Weighted Score (weights: stars=0.6, forks=0.25, recency=0.15):
 ## 🌟 **Features**
 
 - **REST API for GitHub Repository Search**  
-  Retrieves repositories by language and creation date, sorted by stars.  
-  *(GitHub Search API limits total results to 1000 records → `page × per_page ≤ 1000`.)*
+  - Retrieves repositories by language, creation date, page number and per page limit, sorted by stars.  
+  - GitHub Search API limits total results to 1000 records → `page × per_page ≤ 1000`.)
+  *(Languages Like: Java, JavaScript, TypeScript, Kotlin, Go, C, C++, C#, Python, Ruby, Swift, PHP,
+  HTML, CSS, Shell, Rust, Dart, Scala, R, Objective-C, Groovy, Perl, etc.)*
 
 - **Configurable via `application.yml`**  
   Customize scoring weights, half-life factors, and GitHub endpoint configuration.
