@@ -28,11 +28,15 @@ public class PopularityScoreController {
     }
 
     @GetMapping("/popularityScore")
-    @Operation(operationId = "getPopularityScore", summary = "Get popularity score for each github repositories", description = "Get popularity score for each github repositories")
+    @Operation(operationId = "getPopularityScore", summary = "Get popularity score for each github repositories", description = """
+            Retrieves GitHub repositories created after a given date and sorted by stars.
+            Note: GitHub API limits total search results to 1000 records
+            (page × per_page ≤ 1000).
+            """)
     public List<PopularityScoreResponse> getPopularityScore(@RequestParam("language") @Parameter(description = "GitHub repo language") String language,
                                                             @RequestParam("created_after") @Parameter(description = "Earliest created date in YYYY-MM-DD format") String createdAfter,
-                                                            @RequestParam(name = "page", defaultValue = "10") @Parameter(description = "Page number") int page,
-                                                            @RequestParam(name = "perPage", defaultValue = "100") @Parameter(description = "Per Page Count") int perPage) {
+                                                            @RequestParam(name = "page", defaultValue = "10") @Parameter(description = "Page number (page × per_page ≤ 1000 for GitHub API)") int page,
+                                                            @RequestParam(name = "perPage", defaultValue = "100") @Parameter(description = "Results per page (max 100, page × per_page ≤ 1000 for GitHub API)") int perPage) {
         return repositorySearchService.search(language, createdAfter, page, perPage);
     }
 }

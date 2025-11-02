@@ -3,8 +3,6 @@
 **Github Popularity Score Service** is a backend Spring Boot application that fetches GitHub repositories for a given language, earliest creation date and page limit. 
 It calculates a **popularity score** based on Stars, Forks and Recency of updates.
 
----
-
 ## **Scoring Algorithm & Configuration**
 The popularity score is calculated by weighted formula (assumed weights: stars 60%, forks 25%, recency 15%, configurable). We normalize and transform the data using logarithmic and exponential calculation.
 
@@ -46,8 +44,7 @@ normalizedScore = 100 * rawScore / maxRawScore
 ```
 `maxRawScore` is the highest raw score among the fetched repositories.
 
-
-### Sample Calculations (small → million-scale)
+### **Sample Calculations (small → million-scale)**
 
 Example Weighted Score (weights: stars=0.6, forks=0.25, recency=0.15):
 
@@ -64,53 +61,153 @@ Example Weighted Score (weights: stars=0.6, forks=0.25, recency=0.15):
 
 > RawScore is unnormalized; final presentation will scale results between 0–100 across the search set considering the maxRawScore.
 
-## **Features**
-- Fetch repositories via GitHub Search API
-- Filter by creation date and programming language
-- Compute popularity score from stars, forks, and recency (half-life 90 days)
-- Clean HTTP client (RestTemplate-based)
-- Configurable scoring weights and half-life via `application.yml`
-- Graceful handling of GitHub search/rate limits
-- Ready for caching with Spring Cache (in-memory or Redis) if enabled
-- Tested with junit mock test cases and easy to extend
-- Swagger UI is implemented for easy testing
-- Docker Image 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
 
----
+## 🌟 **Features**
 
----
+- **REST API for GitHub Repository Search**  
+  Retrieves repositories by language and creation date, sorted by stars.  
+  *(GitHub Search API limits total results to 1000 records → `page × per_page ≤ 1000`.)*
 
-### **Configuration via `application.yml`**
+- **Configurable via `application.yml`**  
+  Customize scoring weights, half-life factors, and GitHub endpoint configuration.
 
-- Scoring parameters are configurable in `src/main/resources/application.yml`:
+- **Clean HTTP Client (RestTemplate-based)**  
+  Uses a lightweight `RestTemplate` client with a custom `ResponseErrorHandler` to translate GitHub API errors (rate limits, 403/404, 5xx) into domain-specific exceptions.
 
-  ```yaml
-  popularity.score:
+- **Graceful Error & Exception Handling**  
+  Global exception layer (`GlobalExceptionHandlerBase`) converts all errors into consistent JSON responses.  
+  Includes rich GitHub exception hierarchy:
+    - `GitHubAuthException`
+    - `RateLimitExceededException`
+    - `GitHubNotFoundException`
+    - `GitHubServerException`
+
+- **Swagger UI Integration**  
+  Interactive API documentation available at **`/swagger-ui.html`** for quick testing.
+
+- **Caching-Ready**  
+  Designed for Spring Cache — supports in-memory or Redis cache if enabled.
+
+- **Unit-Tested with JUnit & Mockito**  
+  Includes clean test cases for controller and service layers to ensure correctness and maintainability.
+
+- **Dockerized for Deployment**  
+  Fully containerized via Dockerfile.  
+  Continuous Integration is handled through **GitHub Actions** (build → test → image publish).
+
+- **Lightweight & Extensible Architecture**  
+  Layered design with clear separation of concerns between Controller, Service, and Exception Handling layers — easy to extend for additional GitHub APIs (e.g., commits, contributors, issues).
+
+## 🌟 **Configurable Popularity Scoring**
+
+The service computes a **popularity score** for each GitHub repository based on three weighted factors:  
+**stars**, **forks**, and **recency**.  
+These weights are fully configurable in `src/main/resources/application.yml`, allowing flexibility without code changes.
+
+### ⚙️ **Configuration Example**
+
+```yaml
+popularity.score:
   stars-weight: 0.6          # Weightage of stars in total score
   forks-weight: 0.25         # Weightage of forks in total score
   recency-weight: 0.15       # Weightage of recency in total score
   recency-half-life-days: 90 # Days it takes for recency value to halve
-  ```
-- This configuration allows flexibility to change the weightage contribution without modifying code.
-- recency-half-life-days controls how quickly a repository’s recency decays.
-- Stars (0.6) dominate and are weighted highest because highly starred repositories are typically more popular.
-- Forks (0.25) contribute moderately. It denotes code adoption and engagement.
-- Recency (0.15) has smaller influence favors actively maintained repositories.
+```
+
+### 🧮 **How It Works**
+
+- Stars (0.6) → Highest influence on score. Popular repositories with large star counts rank higher.
+- Forks (0.25) → Indicates community adoption and contribution, moderately affects total score.
+- Recency (0.15) → Encourages repositories with active development. Newer commits boost the score.
+- Half-life concept (90 days) → After every 90 days, the recency influence is halved, ensuring older repos naturally lose recency value.
 - This approach ensures a balanced popularity score, prioritizing popular repositories while still considering community engagement and recency updates.
 
+## 🧰 **Tech Stack**
+
+| Component | Technology |
+|------------|-------------|
+| **Language** | Java 17+ |
+| **Framework** | Spring Boot 3.x |
+| **HTTP Client** | RestTemplate |
+| **Documentation** | Springdoc OpenAPI (Swagger UI) |
+| **Build Tool** | Maven |
+| **Testing** | JUnit 5 + Mockito |
+| **Containerization** | Docker |
+| **CI/CD** | GitHub Actions |
+| **Logging** | SLF4J + Logback |
+
 ---
 
-## **Technologies Used**
+## 📘 **API Endpoint**
 
-- Java 17
-- Spring Boot 3.5.7
-- Swagger for API testing
-- WebFlux for API calls
-- Jackson for JSON processing
-- Maven for project management
-- Docker for containerization
+### `GET /api/v1/repo/popularityScore`
+
+| Parameter | Type | Description |
+|------------|------|-------------|
+| `language` | String | GitHub repository language (e.g., Java, Node) |
+| `created_after` | String (YYYY-MM-DD) | Earliest repository creation date |
+| `page` | int | Page number *(page × per_page ≤ 1000)* |
+| `perPage` | int | Results per page *(max 100)* |
+
+**Example Request:**
+```bash
+curl "http://localhost:8080/api/v1/repo/popularityScore?language=Java&created_after=2024-01-01&page=1&perPage=10"
+```
+
+## 🧪 **Running Locally**
+
+### 🧰 **Prerequisites**
+Make sure the following are installed:
+- **Java 17+**
+- **Maven 3.8+**
+- **Docker** *(optional, for containerized run)*
 
 ---
 
-Testing
-https://api.github.com/search/repositories?q=language:node%20created:%3E2024-01-01&sort=stars&order=desc&page=10&per_page=100
+### ▶️ **Run using Maven**
+
+```bash
+mvn clean spring-boot:run
+```
+This will start the application on http://localhost:8080.
+
+### 🏗️ **Or build the executable JAR**
+
+mvn clean package
+java -jar target/github-popularity-score-service-0.0.1-SNAPSHOT.jar
+
+
+### 🧭 **Access Swagger UI**
+
+Once the app is running, explore and test the API directly from the Swagger interface:
+
+👉 http://localhost:8080/swagger-ui.html
+
+The Swagger UI provides an interactive API console to execute requests and view live responses.
+
+### 🐳 **Docker Support**
+🏗️ Build Docker Image
+docker build -t github-popularity-score-service .
+
+▶️ Run Container
+docker run -p 8080:8080 github-popularity-score-service
+
+Then visit:
+👉 http://localhost:8080/swagger-ui.html
+
+### 🧠 **Future Enhancements**
+
+🔐 GitHub Token Authentication
+To increase API rate limits for authenticated users.
+
+⚡ Reactive WebClient Integration
+Switch to asynchronous HTTP for non-blocking performance.
+
+🧩 Redis Caching Support
+Cache frequent GitHub queries for faster responses and API efficiency.
+
+📊 Extended Scoring Model
+Include metrics such as issues, pull requests, and recency decay improvements.
+
+🧱 Composite Scoring Dashboard
+Visualize repository popularity across languages and time using aggregated scoring data.

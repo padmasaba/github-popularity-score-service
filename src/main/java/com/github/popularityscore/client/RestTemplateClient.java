@@ -1,12 +1,9 @@
 package com.github.popularityscore.client;
 
+import com.github.popularityscore.exception.GitHubException;
 import com.github.popularityscore.model.GitHubSearchResponse;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -18,38 +15,46 @@ public class RestTemplateClient {
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final String baseUrl;
+    private final String apiVersion;
 
     public RestTemplateClient(
-            @Value("${github.api.base-url:https://api.github.com}") String baseUrl) {
+            @Value("${github.api.base-url:https://api.github.com}") String baseUrl,
+            @Value("${github.api.version:https://api.github.com}") String apiVersion) {
         this.baseUrl = baseUrl;
+        this.apiVersion = apiVersion;
     }
 
     public GitHubSearchResponse searchRepositories(String query, int page, int perPage) {
         System.out.println(baseUrl);
         System.out.println(query);
-        URI uri = UriComponentsBuilder.fromHttpUrl(baseUrl)
-                .path("/search/repositories")
-                .queryParam("q", query) // ✅ only the search query
-                .queryParam("sort", "stars")
-                .queryParam("order", "desc")
-                .queryParam("page", page)       // ✅ pagination outside q
-                .queryParam("per_page", perPage)  // max 100
-                .build().toUri();
+        try {
+            URI uri = UriComponentsBuilder.fromHttpUrl(baseUrl)
+                    .path("/search/repositories")
+                    .queryParam("q", query) // ✅ only the search query
+                    .queryParam("sort", "stars")
+                    .queryParam("order", "desc")
+                    .queryParam("page", page)       // ✅ pagination outside q
+                    .queryParam("per_page", perPage)  // max 100
+                    .build().toUri();
 
-        System.out.println("url::"+uri.toASCIIString());
+            System.out.println("url::" + uri.toASCIIString());
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.ACCEPT, "application/vnd.github+json");
-        headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+            HttpHeaders headers = new HttpHeaders();
+            headers.set(HttpHeaders.ACCEPT, "application/vnd.github+json");
+            headers.set("X-GitHub-Api-Version", apiVersion);
+            headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
-        ResponseEntity<GitHubSearchResponse> response = restTemplate.exchange(
-                uri,
-                HttpMethod.GET,
-                entity,
-                GitHubSearchResponse.class
-        );
-        return response.getBody();
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+            ResponseEntity<GitHubSearchResponse> response = restTemplate.exchange(
+                    uri,
+                    HttpMethod.GET,
+                    entity,
+                    GitHubSearchResponse.class
+            );
+            return response.getBody();
+        } catch (Exception e) {
+            throw new GitHubException(e.getMessage(), e.getCause());
+        }
     }
 }
 
