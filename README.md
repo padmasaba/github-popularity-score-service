@@ -1,9 +1,9 @@
 # Github Popularity Score Service
 
-**Github Popularity Score Service** is a backend Spring Boot application that fetches GitHub repositories for a given language, earliest creation date and page limit. 
+**Github Popularity Score Service** is a backend Spring Boot application that fetches GitHub repositories for a given language, earliest creation date, page number and per page limit. 
 It calculates a **popularity score** based on Stars, Forks and Recency of updates.
 
-## **Scoring Algorithm & Configuration**
+## 🧮 **Scoring Algorithm & Configuration**
 The popularity score is calculated by weighted formula (assumed weights: stars 60%, forks 25%, recency 15%, configurable). We normalize and transform the data using logarithmic and exponential calculation.
 
 1. **Stars (`stargazers_count`)** – measures the repository’s popularity.
@@ -27,8 +27,8 @@ The popularity score is calculated by weighted formula (assumed weights: stars 6
     ```
     
   - **Recency Score (exponential scaled):**
-    Based on days since last push, we normalize by a half-life:
-    Half-life means the freshness value halves every configured period (e.g., 90 days). This exponential term always yields a value between 0 and 1 (1 when updated today, approaching 0 as it gets older).
+    Based on days since last push, we normalize by a half-life.
+    Half-life means the freshness value halves after every configured period (e.g., 90 days). This exponential term always generate a value between 0 and 1 (1 when updated today, approaching 0 as it gets older).
     ```text
     freshness_decay = math.exp(-math.log(2) * days_since_update / half_life_days)
     ```
@@ -48,7 +48,7 @@ The popularity score is calculated by weighted formula (assumed weights: stars 6
 
 Example Weighted Score (weights: stars=0.6, forks=0.25, recency=0.15):
 
-- Given: stargazers=2,000 → log10(2001)=3.301, forks=300 → log10(301)=2.479, days_since=45 → exp(-ln2*45/90)=0.707
+- Given: stargazers=2,000 → log10(2001)=3.301; forks=300 → log10(301)=2.479; days_since=45 → exp(-ln2*45/90)=0.707
 - Raw Score ≈ 0.6×3.301 + 0.25×2.479 + 0.15×0.707 = 1.9806 + 0.6198 + 0.1061 = 2.7065
 
 | Stars      | Forks   | Days since | StarsScore log10(1+S) | ForksScore log10(1+F) | RecencyScore e^(-ln2*d/90) | RawScore = 0.6*S + 0.25*F + 0.15*R |
@@ -59,7 +59,7 @@ Example Weighted Score (weights: stars=0.6, forks=0.25, recency=0.15):
 |   100,000  |   5,000 |        120 |                 5.000 |                 3.699 |                       0.397 |                                3.984 |
 | 1,000,000  |  20,000 |        365 |                 6.000 |                 4.301 |                       0.082 |                                4.688 |
 
-> RawScore is unnormalized; final presentation will scale results between 0–100 across the search set considering the maxRawScore.
+> RawScore is unnormalized; final normalized output will scale results between 0–100 across the search set considering the maxRawScore.
 
 
 ## 🌟 **Features**
@@ -173,16 +173,14 @@ This will start the application on http://localhost:8080.
 ### 🏗️ **Or build the executable JAR**
 
 - mvn clean package
-- java -jar target/github-popularity-score-service-0.0.1-SNAPSHOT.jar
+- java -jar target/github-popularity-score-service-0.0.1.jar
 
 
 ### 🧭 **Access Swagger UI**
 
-Once the app is running, explore and test the API directly from the Swagger interface:
+Once the app is running, explore and test the API directly from the Swagger interface. The Swagger UI provides an interactive API console to execute requests and view live responses.
 
 👉 http://localhost:8080/swagger-ui.html
-
-The Swagger UI provides an interactive API console to execute requests and view live responses.
 
 
 ### 🐳 **Docker Support**
