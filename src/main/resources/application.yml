@@ -1,0 +1,21 @@
+server:
+  port: 8080
+
+springdoc:
+  api-docs:
+    path: /~/github-popularity-score-service/api-docs
+  swagger-ui:
+    operationsSorter: alpha
+    tagsSorter: alpha
+
+github:
+  api:
+    base-url: https://api.github.com
+    version: 2022-11-28
+
+popularity:
+  score:
+    stars-weight: 0.6
+    forks-weight: 0.25
+    recency-weight: 0.15
+    recency-half-life-days: 90
