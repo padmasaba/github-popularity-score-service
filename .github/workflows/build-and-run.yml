@@ -2,12 +2,17 @@ name: Build, Test, and Run Container
 
 on:
   push:
-    branches: [ main ]         # only main pushes
-  pull_request:                # all PRs
+    branches: [ main ]
+  pull_request:
+
+# 🔴 NEW: cancel older runs for the same PR/branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
-  packages: write              # needed to push/pull to/from ghcr.io
+  packages: write
 
 env:
   IMAGE_NAME: github-popularity-score-service
