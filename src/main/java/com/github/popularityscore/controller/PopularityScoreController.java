@@ -46,7 +46,7 @@ public class PopularityScoreController {
                                                             LocalDate createdAfter,
                                                             @RequestParam(name = "page", defaultValue = "10") @Parameter(description = "Page number (page × per_page ≤ 1000 for GitHub API)") int page,
                                                             @RequestParam(name = "perPage", defaultValue = "100") @Parameter(description = "Results per page (max 100, page × per_page ≤ 1000 for GitHub API)") int perPage) {
-        // 🛡️ Validate the date
+        // Validate the date
         if (createdAfter.isAfter(LocalDate.now())) {
             throw new InvalidDateException("Parameter 'created_after' cannot be greater than today's date (" + LocalDate.now() + ").");
         }

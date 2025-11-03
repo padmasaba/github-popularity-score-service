@@ -1,7 +1,8 @@
-# Github Popularity Score Service
+# Github Popularity Score Service — Keycloak Integration with Swagger UI
 
 **Github Popularity Score Service** is a backend Spring Boot application that fetches GitHub repositories for a given language, earliest creation date, page number and per page limit. 
-It calculates a **popularity score** based on Stars, Forks and Recency of updates.
+It calculates a **popularity score** based on Stars, Forks and Recency of updates. This project integrates Keycloak authentication with Spring Boot and Swagger UI.
+Swagger loads publicly, and on clicking Authorize it redirects users to Keycloak for login (oauth can be enabled or disabled).
 
 ## 🧮 **Scoring Algorithm & Configuration**
 The popularity score is calculated by weighted formula (assumed weights: stars 60%, forks 25%, recency 15%, configurable). We normalize and transform the data using logarithmic and exponential calculation.
@@ -76,6 +77,24 @@ Example Weighted Score (weights: stars=0.6, forks=0.25, recency=0.15):
 - **Clean HTTP Client (RestTemplate-based)**  
   Uses a lightweight `RestTemplate` client with a custom `ResponseErrorHandler` to translate GitHub API errors (rate limits, 403/404, 5xx) into domain-specific exceptions.
 
+- **Keycloak + Swagger Configuration**
+  - Integrated Keycloak authentication using Spring Security and OpenID Connect (OIDC). 
+  - Security can be toggled via a simple flag in application.yml:
+    ```bash
+    app:
+      auth:
+        enabled: true   # or false
+    ```
+  - Swagger UI (/swagger-ui.html) loads without login; users click Authorize to sign in via Keycloak. 
+  - Supports Public client (no client secret) with PKCE for secure token exchange. 
+  - After successful login, Swagger stores the access token and attaches it automatically to all API requests. 
+  - Keycloak setup:
+    - Realm: github-popularity 
+    - Client ID: github-popularity-api 
+    - Client Type: Public (Client Authentication OFF)
+    - Redirect URI: http://localhost:8080/swagger-ui/oauth2-redirect.html
+    - Web Origin: http://localhost:8080
+
 - **Graceful Error & Exception Handling**  
   - All exceptions are handled by a dedicated `GlobalExceptionHandler` class (extending `GlobalExceptionHandlerBase`), which intercepts errors raised anywhere in the application and maps them to descriptive HTTP responses.
   - Includes below GitHub exception hierarchy as GitHubException:
@@ -96,9 +115,6 @@ Example Weighted Score (weights: stars=0.6, forks=0.25, recency=0.15):
 
 - **Swagger UI Integration**  
   Interactive API documentation available at **`/swagger-ui.html`** for quick testing.
-
-- **Caching-Ready**  
-  Designed for Spring Cache — supports in-memory or Redis cache if enabled.
 
 - **Unit-Tested with JUnit & Mockito**  
   Includes clean test cases for controller and service layers to ensure correctness and maintainability.
@@ -145,15 +161,26 @@ Example Weighted Score (weights: stars=0.6, forks=0.25, recency=0.15):
                               ▼
                ┌───────────────────────────────────┐
                │    Push Image to Docker Hub       │
-               │ - Tag versioned image             │
-               │ - Publish for deployment use      │
+               │ - Tag & Publish image             │
                └──────────────┬────────────────────┘
                               │
                               ▼
                ┌───────────────────────────────────┐
                │   Deploy / Pull from Registry     │
-               │ - Container ready to run in CI/CD │
+               │ - Container ready to go           │
                └───────────────────────────────────┘
+    - How to pull the image from registry and run in docker container
+      ```bash
+      $TOKEN="ghp_**"
+      $USER  = "padmasaba"
+      $TOKEN | docker login ghcr.io -u $USER --password-stdin
+      docker images
+      docker pull ghcr.io/padmasaba/github-popularity-score-service:latest
+      docker run -d -p 8080:8080 --name app ghcr.io/padmasaba/github-popularity-score-service:latest
+      docker ps -a
+      docker start app
+      docker stop app
+      ```
 
 - **Lightweight & Extensible Architecture**  
   Layered design with clear separation of concerns between Controller, Service, and Exception Handling layers — easy to extend for additional GitHub APIs (e.g., commits, contributors, issues).
@@ -220,6 +247,7 @@ Make sure the following are installed:
 - **Java 17+**
 - **Maven 3.8+**
 - **Docker** *(optional, for containerized run)*
+- **Keycloak server (optional when security is enabled)**
 
 
 ### ▶️ **Run using Maven**
@@ -259,9 +287,6 @@ Then visit:
 
 
 ## 🧠 **Future Enhancements**
-
-🔐 GitHub Token Authentication
-To increase API rate limits for authenticated users.
 
 ⚡ Reactive WebClient Integration
 Switch to asynchronous HTTP for non-blocking performance.

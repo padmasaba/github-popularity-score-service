@@ -28,7 +28,7 @@ class PopularityScoreServiceTest {
         service = new PopularityScoreService(0.6, 0.25, 0.15, 90);
     }
 
-    // 1️⃣ S=10, F=3, D=15  → Expected ≈ 0.909, Actual = 0.9089854166479765
+    // S=10, F=3, D=15  → Expected ≈ 0.909, Actual = 0.9089854166479765
     @Test
     void rawScore_smallRepo_case1() {
         GitHubRepositoryData repo = mock(GitHubRepositoryData.class);
@@ -40,7 +40,7 @@ class PopularityScoreServiceTest {
         assertEquals(0.909, scored.score, 0.03);
     }
 
-    // 2️⃣ S=100, F=10, D=30 → Expected ≈ 1.582, Actual = 1.581996074456757
+    // S=100, F=10, D=30 → Expected ≈ 1.582, Actual = 1.581996074456757
     @Test
     void rawScore_smallRepo_case2() {
         GitHubRepositoryData repo = mock(GitHubRepositoryData.class);
@@ -52,7 +52,7 @@ class PopularityScoreServiceTest {
         assertEquals(1.582, scored.score, 0.03);
     }
 
-    // 3️⃣ S=1_000, F=120, D=45 → Expected ≈ 2.427, Actual = 2.4270228062446857
+    // S=1_000, F=120, D=45 → Expected ≈ 2.427, Actual = 2.4270228062446857
     @Test
     void rawScore_midRepo_case3() {
         GitHubRepositoryData repo = mock(GitHubRepositoryData.class);
@@ -64,7 +64,7 @@ class PopularityScoreServiceTest {
         assertEquals(2.427, scored.score, 0.03);
     }
 
-    // 4️⃣ S=100_000, F=5_000, D=120 → Expected ≈ 3.984, Actual = 3.9842943588395876
+    // S=100_000, F=5_000, D=120 → Expected ≈ 3.984, Actual = 3.9842943588395876
     @Test
     void rawScore_largeRepo_case4() {
         GitHubRepositoryData repo = mock(GitHubRepositoryData.class);
@@ -76,7 +76,7 @@ class PopularityScoreServiceTest {
         assertEquals(3.984, scored.score, 0.03);
     }
 
-    // 5️⃣ S=1_000_000, F=20_000, D=365 → Expected ≈ 4.688, Actual = 4.684284036508748
+    // S=1_000_000, F=20_000, D=365 → Expected ≈ 4.688, Actual = 4.684284036508748
     @Test
     void rawScore_megaRepo_case5() {
         GitHubRepositoryData repo = mock(GitHubRepositoryData.class);
@@ -88,7 +88,7 @@ class PopularityScoreServiceTest {
         assertEquals(4.688, scored.score, 0.03);
     }
 
-    // 6️⃣ Normalization: two repos → top one should be ~100, other proportional
+    // Normalization: two repos → top one should be ~100, other proportional
     @Test
     void normalization_scalesMaxTo100() {
         GitHubRepositoryData repoA = mock(GitHubRepositoryData.class);
