@@ -77,14 +77,14 @@ Example Weighted Score (weights: stars=0.6, forks=0.25, recency=0.15):
   Uses a lightweight `RestTemplate` client with a custom `ResponseErrorHandler` to translate GitHub API errors (rate limits, 403/404, 5xx) into domain-specific exceptions.
 
 - **Graceful Error & Exception Handling**  
-  All exceptions are handled by a dedicated `GlobalExceptionHandler` class (extending `GlobalExceptionHandlerBase`), which intercepts errors raised anywhere in the application and maps them to descriptive HTTP responses.
-  Includes below GitHub exception hierarchy as GitHubException:
+  - All exceptions are handled by a dedicated `GlobalExceptionHandler` class (extending `GlobalExceptionHandlerBase`), which intercepts errors raised anywhere in the application and maps them to descriptive HTTP responses.
+  - Includes below GitHub exception hierarchy as GitHubException:
     - `GitHubAuthException`
     - `RateLimitExceededException`
     - `GitHubNotFoundException`
     - `GitHubServerException`
-  This approach prevents unstructured stack traces and guarantees that API consumers always receive clear, predictable JSON error objects.
-  **Example Response Structure:**
+  - This approach prevents unstructured stack traces and guarantees that API consumers always receive clear, predictable JSON error objects.
+  - **Example Response Structure:**
     ```json
     {
       "status": 400,
