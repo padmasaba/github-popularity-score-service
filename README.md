@@ -2,8 +2,7 @@
 
 **Github Popularity Score Service** is a backend Spring Boot application that fetches GitHub repositories for a given language, earliest creation date, page number and per page limit. 
 It calculates a **popularity score** based on Stars, Forks and Recency of updates. This project integrates Keycloak authentication with Spring Boot and Swagger UI.
-Swagger loads publicly, and clicking Authorize redirects users to Keycloak for login.
-Security can be enabled or disabled via a flag in configuration file.
+Swagger loads publicly, and on clicking Authorize it redirects users to Keycloak for login (feature can be enabled or disabled).
 
 ## 🧮 **Scoring Algorithm & Configuration**
 The popularity score is calculated by weighted formula (assumed weights: stars 60%, forks 25%, recency 15%, configurable). We normalize and transform the data using logarithmic and exponential calculation.

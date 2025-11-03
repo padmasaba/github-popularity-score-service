@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
@@ -29,8 +30,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * - Expects InvalidDateException to map to 400. If you haven’t annotated it with @ResponseStatus(BAD_REQUEST)
  *   or don’t have a @ControllerAdvice for it, change the status expectation accordingly.
  */
-@WebMvcTest(PopularityScoreController.class)
+@WebMvcTest(controllers = PopularityScoreController.class,
+        excludeAutoConfiguration = {
+                org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class,
+                org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration.class,
+                org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientAutoConfiguration.class,
+                org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration.class
+        })
 @AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
 class PopularityScoreControllerTest {
 
     @Autowired
