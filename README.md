@@ -103,52 +103,52 @@ Example Weighted Score (weights: stars=0.6, forks=0.25, recency=0.15):
 - **Unit-Tested with JUnit & Mockito**  
   Includes clean test cases for controller and service layers to ensure correctness and maintainability.
 
-  - **Automated CI/CD with GitHub Actions**  
-    The project includes a GitHub Actions workflow (`.github/workflows/build-and-run.yml`) that automates the complete build, test, and deployment pipeline:
-    - 🧩 **Triggers** automatically on every commit or pull request across all branches.
-    - ⚙️ **Builds** the project using Maven and executes unit tests to ensure code quality.
-    - 🐳 **Builds & validates** the Docker image to confirm successful containerization.
-    - 🚀 **Publishes the Docker image** to Docker Hub for deployment-ready distribution.
-    - ✅ Guarantees consistent, repeatable builds and zero manual intervention during deployment.
+- **Automated CI/CD with GitHub Actions**  
+  The project includes a GitHub Actions workflow (`.github/workflows/build-and-run.yml`) that automates the complete build, test, and deployment pipeline:
+  - 🧩 **Triggers** automatically on every commit or pull request across all branches.
+  - ⚙️ **Builds** the project using Maven and executes unit tests to ensure code quality.
+  - 🐳 **Builds & validates** the Docker image to confirm successful containerization.
+  - 🚀 **Publishes the Docker image** to Docker Hub for deployment-ready distribution.
+  - ✅ Guarantees consistent, repeatable builds and zero manual intervention during deployment.
 
-    This ensures a fully automated **CI/CD workflow** — from source code changes → build → test → image publish → deploy — delivering a reliable and production-ready pipeline.
+  This ensures a fully automated **CI/CD workflow** — from source code changes → build → test → image publish → deploy — delivering a reliable and production-ready pipeline.
 
-                 ┌───────────────────────────────┐
-                 │          Developer            │
-                 │        (Commit / PR)          │
-                 └──────────────┬────────────────┘
-                                │
-                                ▼
-                 ┌───────────────────────────────┐
-                 │  GitHub Actions Trigger       │
-                 └──────────────┬────────────────┘
-                                │
-                                ▼
-                 ┌───────────────────────────────┐
-                 │    Build & Test (Maven)       │
-                 │ - Compile code                │
-                 │ - Run JUnit tests             │
-                 └──────────────┬────────────────┘
-                                │
-                                ▼
-                 ┌───────────────────────────────────┐
-                 │    Docker Build & Validation      │
-                 │ - Build Docker image              │
-                 │ - Run container for verification  │
-                 └──────────────┬────────────────────┘
-                                │
-                                ▼
-                 ┌───────────────────────────────────┐
-                 │    Push Image to Docker Hub       │
-                 │ - Tag versioned image             │
-                 │ - Publish for deployment use      │
-                 └──────────────┬────────────────────┘
-                                │
-                                ▼
-                 ┌───────────────────────────────────┐
-                 │   Deploy / Pull from Registry     │
-                 │ - Container ready to run in CI/CD │
-                 └───────────────────────────────────┘
+               ┌───────────────────────────────┐
+               │          Developer            │
+               │        (Commit / PR)          │
+               └──────────────┬────────────────┘
+                              │
+                              ▼
+               ┌───────────────────────────────┐
+               │  GitHub Actions Trigger       │
+               └──────────────┬────────────────┘
+                              │
+                              ▼
+               ┌───────────────────────────────┐
+               │    Build & Test (Maven)       │
+               │ - Compile code                │
+               │ - Run JUnit tests             │
+               └──────────────┬────────────────┘
+                              │
+                              ▼
+               ┌───────────────────────────────────┐
+               │    Docker Build & Validation      │
+               │ - Build Docker image              │
+               │ - Run container for verification  │
+               └──────────────┬────────────────────┘
+                              │
+                              ▼
+               ┌───────────────────────────────────┐
+               │    Push Image to Docker Hub       │
+               │ - Tag versioned image             │
+               │ - Publish for deployment use      │
+               └──────────────┬────────────────────┘
+                              │
+                              ▼
+               ┌───────────────────────────────────┐
+               │   Deploy / Pull from Registry     │
+               │ - Container ready to run in CI/CD │
+               └───────────────────────────────────┘
 
 - **Lightweight & Extensible Architecture**  
   Layered design with clear separation of concerns between Controller, Service, and Exception Handling layers — easy to extend for additional GitHub APIs (e.g., commits, contributors, issues).
