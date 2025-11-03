@@ -66,6 +66,7 @@
     </dependencies>
 
     <build>
+        <finalName>app</finalName>
         <plugins>
             <!-- Spring Boot: produce an executable (fat) jar -->
             <plugin>
