@@ -103,13 +103,18 @@ Example Weighted Score (weights: stars=0.6, forks=0.25, recency=0.15):
 - **Unit-Tested with JUnit & Mockito**  
   Includes clean test cases for controller and service layers to ensure correctness and maintainability.
 
-- **Automated CI/CD with GitHub Actions**  
-  The project includes a GitHub Actions workflow (`.github/workflows/build-and-run.yml`) that automates the complete build, test, and deployment pipeline:
-  - 🧩 **Triggers** automatically on every commit or pull request across all branches.
-  - ⚙️ **Builds** the project using Maven and executes unit tests to ensure code quality.
-  - 🐳 **Builds & validates** the Docker image to confirm successful containerization.
-  - 🚀 **Publishes the Docker image** to Docker Hub for deployment-ready distribution.
-  - ✅ Guarantees consistent, repeatable builds and zero manual intervention during deployment.
+- **🧩 Automated CI/CD with GitHub Action Runner: Build, Test & Run Container**
+  - This GitHub Actions workflow(`.github/workflows/build-and-run.yml`) automates the full CI/CD process for a Java-based project.
+    - 🧩 **Triggers** automatically on every commit or pull request across all branches.
+    - ⚙️ **Builds** the project using Maven and executes unit tests to ensure code quality.
+    - 🐳 **Builds & validates** the Docker image to confirm successful containerization.
+    - 🚀 **Publishes the Docker image** to Docker Hub for deployment-ready distribution.
+    - ✅ Guarantees consistent, repeatable builds and zero manual intervention during deployment.
+  - Build & Test – Checks out the repository, sets up Java 17, and runs Maven tests. 
+  - Docker Build & Push – Builds a Docker image (auto-detects the Dockerfile) and pushes it to GitHub Container Registry (GHCR) when changes are merged to main. 
+  - Run & Verify – Runs the container to verify that the image works correctly (both for main and PR branches). 
+  - Concurrency Control – Cancels older workflow runs for the same branch or PR to save resources. 
+  - This ensures every push or PR results in a validated, deployable container image.
 
   This ensures a fully automated **CI/CD workflow** — from source code changes → build → test → image publish → deploy — delivering a reliable and production-ready pipeline.
 
