@@ -84,8 +84,10 @@ jobs:
         with:
           context: ${{ env.CONTEXT }}
           file: ${{ env.DOCKERFILE }}
+          # push only on non-PR events
           push: ${{ github.event_name != 'pull_request' }}
-          # choose your platforms; single-arch is usually enough. Add linux/arm64 if needed.
+          # load the image into the local Docker engine on PRs so we can run it
+          load: ${{ github.event_name == 'pull_request' }}
           platforms: linux/amd64
           tags: |
             ${{ env.IMAGE }}:${{ steps.meta.outputs.sha_tag }}
@@ -94,12 +96,14 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+
       # Sanity check the *built* image locally on PRs too
       - name: Verify Spring Boot manifest in jar (local image)
+        if: ${{ github.event_name == 'pull_request' }}
         run: |
-          id=$(docker images --format '{{.Repository}}:{{.Tag}} {{.ID}}' | awk '/${{ env.IMAGE }}:latest/ {print $2; exit}')
-          docker run --rm --entrypoint sh $id -c \
+          docker run --rm --entrypoint sh ${{ env.IMAGE }}:latest -c \
             "unzip -p /app/app.jar META-INF/MANIFEST.MF | grep -E 'Start-Class|Spring-Boot-Version'"
+      
 
       # Pull what we actually pushed and prove it runs (only on main/tags)
       - name: Run container from pushed image (registry)
@@ -108,7 +112,6 @@ jobs:
           docker rm -f app || true
           docker pull ${{ env.IMAGE }}:${{ steps.meta.outputs.sha_tag }}
           docker run -d -p 8080:8080 --name app ${{ env.IMAGE }}:${{ steps.meta.outputs.sha_tag }}
-          # give it a moment to start
           sleep 8
           docker logs app --tail=200
 
@@ -116,5 +119,5 @@ jobs:
         if: ${{ github.event_name != 'pull_request' }}
         run: |
           set -e
-          # try actuator first, then root
           curl -fsS http://localhost:8080/actuator/health || curl -fsS http://localhost:8080
+
