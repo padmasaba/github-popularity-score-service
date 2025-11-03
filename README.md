@@ -65,8 +65,8 @@ Example Weighted Score (weights: stars=0.6, forks=0.25, recency=0.15):
 ## 🌟 **Features**
 
 - **REST API for GitHub Repository Search**  
-  - Retrieves repositories by language, creation date, page number and per page limit, sorted by stars.
-    > Languages Like: Java, JavaScript, TypeScript, Kotlin, Go, C, C++, C#, Python, Ruby, Swift, PHP,
+  - Retrieves repositories by language (list of enums), creation date, page number and per page limit, sorted by stars.
+    > Languages like: Java, JavaScript, TypeScript, Kotlin, Go, C, C++, C#, Python, Ruby, Swift, PHP,
   HTML, CSS, Shell, Rust, Dart, Scala, R, Objective-C, Groovy, Perl, etc.
   - GitHub Search API limits total results to 1000 records → `page × per_page ≤ 1000`.
 
@@ -77,12 +77,22 @@ Example Weighted Score (weights: stars=0.6, forks=0.25, recency=0.15):
   Uses a lightweight `RestTemplate` client with a custom `ResponseErrorHandler` to translate GitHub API errors (rate limits, 403/404, 5xx) into domain-specific exceptions.
 
 - **Graceful Error & Exception Handling**  
-  Global exception layer (`GlobalExceptionHandlerBase`) converts all errors into consistent JSON responses.  
-  Includes rich GitHub exception hierarchy:
+  All exceptions are handled by a dedicated `GlobalExceptionHandler` class (extending `GlobalExceptionHandlerBase`), which intercepts errors raised anywhere in the application and maps them to descriptive HTTP responses.
+  Includes below GitHub exception hierarchy as GitHubException:
     - `GitHubAuthException`
     - `RateLimitExceededException`
     - `GitHubNotFoundException`
     - `GitHubServerException`
+  This approach prevents unstructured stack traces and guarantees that API consumers always receive clear, predictable JSON error objects.
+  **Example Response Structure:**
+    ```json
+    {
+      "status": 400,
+      "error": "Invalid Date",
+      "message": "Parameter 'created_after' cannot be greater than today's date (2025-11-03).",
+      "path": "/api/v1/repo/popularityScore"
+    }
+    ```
 
 - **Swagger UI Integration**  
   Interactive API documentation available at **`/swagger-ui.html`** for quick testing.

@@ -19,6 +19,15 @@ public class GlobalExceptionHandler extends GlobalExceptionHandlerBase {
         return getExceptionResponse(ex, req);
     }
 
+    @ExceptionHandler(InvalidDateException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public @ResponseBody ExceptionResponse handleInvalidDate(
+            InvalidDateException ex, HttpServletRequest req) {
+
+        System.out.println("Caught InvalidDateException"+ ex);
+        return getExceptionResponse(ex, req);
+    }
+
     private ExceptionResponse getExceptionResponse(Exception ex, HttpServletRequest req) {
         ExceptionResponse exceptionResponse = new ExceptionResponse();
         exceptionResponse.setErrorMessage(ex.getMessage());

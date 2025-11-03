@@ -4,16 +4,20 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MultipartException;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -81,6 +85,39 @@ public abstract class GlobalExceptionHandlerBase {
 
         log.warn("Multipart error [{} {}]: {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
         return build(HttpStatus.BAD_REQUEST, "File upload error", ex.getMessage(), req);
+    }
+
+    @ExceptionHandler({
+            MethodArgumentTypeMismatchException.class,
+            ConversionFailedException.class,
+            DateTimeParseException.class
+    })
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> handleDateParamErrors(Exception ex, HttpServletRequest req) {
+        // Default response
+        String paramName = "created_after";
+        String badValue = req.getParameter(paramName);
+
+        // If it's a MethodArgumentTypeMismatchException, we can be extra sure it's our LocalDate param
+        if (ex instanceof MethodArgumentTypeMismatchException matme) {
+            paramName = matme.getName();
+            badValue  = badValue != null ? badValue : String.valueOf(matme.getValue());
+
+            // Only treat as "invalid date" if this was the LocalDate parameter
+            if (!LocalDate.class.equals(matme.getRequiredType())) {
+                // Not our case → let the base class handle it as a generic bad request
+                return build(HttpStatus.BAD_REQUEST, "MethodArgumentTypeMismatchException", ex.getMessage(), req);
+            }
+        }
+
+        // Build a clear 400 payload
+        Map<String, Object> body = new HashMap<>();
+        body.put("status", 400);
+        body.put("error", "Invalid Date Format");
+        body.put("message", "Parameter '" + paramName + "' must be in YYYY-MM-DD format. Invalid value: " + badValue);
+        body.put("path", req.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
     // ---------------------------
