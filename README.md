@@ -97,9 +97,6 @@ Example Weighted Score (weights: stars=0.6, forks=0.25, recency=0.15):
 - **Swagger UI Integration**  
   Interactive API documentation available at **`/swagger-ui.html`** for quick testing.
 
-- **Caching-Ready**  
-  Designed for Spring Cache — supports in-memory or Redis cache if enabled.
-
 - **Unit-Tested with JUnit & Mockito**  
   Includes clean test cases for controller and service layers to ensure correctness and maintainability.
 
@@ -154,6 +151,18 @@ Example Weighted Score (weights: stars=0.6, forks=0.25, recency=0.15):
                │   Deploy / Pull from Registry     │
                │ - Container ready to run in CI/CD │
                └───────────────────────────────────┘
+    - How to pull the image from registry and run in docker container
+      ```bash
+      $TOKEN="ghp_**"
+      $USER  = "padmasaba"
+      $TOKEN | docker login ghcr.io -u $USER --password-stdin
+      docker images
+      docker pull ghcr.io/padmasaba/github-popularity-score-service:latest
+      docker run -d -p 8080:8080 --name app ghcr.io/padmasaba/github-popularity-score-service:latest
+      docker ps -a
+      docker start app
+      docker stop app
+      ```
 
 - **Lightweight & Extensible Architecture**  
   Layered design with clear separation of concerns between Controller, Service, and Exception Handling layers — easy to extend for additional GitHub APIs (e.g., commits, contributors, issues).
