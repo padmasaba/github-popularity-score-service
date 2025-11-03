@@ -24,10 +24,14 @@ public class RepositorySearchService {
 
     public List<PopularityScoreResponse> search(String query, int page, int perPage) {
         GitHubSearchResponse response = restTemplateClient.searchRepositories(query, page, perPage);
-        List<GitHubRepositoryData> items = response == null || response.getItems() == null ? List.of() : response.getItems();
+        List<GitHubRepositoryData> items =
+                response == null || response.getItems() == null ? List.of() : response.getItems();
+
+        // compute raw scores using the service (uses YAML weights)
         List<GitHubRepositoryWithScore> withScores = items.stream()
-                .map(GitHubRepositoryWithScore::new)
+                .map(scoringService::score)   // <-- changed line
                 .collect(Collectors.toList());
+
         double maxRaw = withScores.stream().mapToDouble(r -> r.score).max().orElse(0.0);
         scoringService.assignNormalizedScores(withScores, maxRaw);
 
@@ -45,6 +49,7 @@ public class RepositorySearchService {
                         .build())
                 .collect(Collectors.toList());
     }
+
 
     public List<PopularityScoreResponse> search(String language, String createdAfter, int page, int perPage) {
         StringBuilder q = new StringBuilder();

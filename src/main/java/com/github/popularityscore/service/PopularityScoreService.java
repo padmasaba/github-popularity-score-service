@@ -1,67 +1,66 @@
 package com.github.popularityscore.service;
 
 import com.github.popularityscore.model.GitHubRepositoryData;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
-import static java.lang.Math.*;
-import org.springframework.beans.factory.annotation.Value;
 
 
 @Service
 public class PopularityScoreService {
-    private static final int HALF_LIFE_DAYS = 90;
-    @Value("${popularity.score.stars-weight}")
-    private double starsWeight;
 
-    @Value("${popularity.score.forks-weight}")
-    private double forksWeight;
+    private final double starsWeight;
+    private final double forksWeight;
+    private final double recencyWeight;
+    private final int recencyHalfLifeDays;
 
-    @Value("${popularity.score.recency-weight}")
-    private double recencyWeight;
+    public PopularityScoreService(
+            @Value("${popularity.score.stars-weight}") double starsWeight,
+            @Value("${popularity.score.forks-weight}") double forksWeight,
+            @Value("${popularity.score.recency-weight}") double recencyWeight,
+            @Value("${popularity.score.recency-half-life-days}") int recencyHalfLifeDays) {
+        this.starsWeight = starsWeight;
+        this.forksWeight = forksWeight;
+        this.recencyWeight = recencyWeight;
+        this.recencyHalfLifeDays = recencyHalfLifeDays;
+    }
 
-    @Value("${popularity.score.recency-half-life-days}")
-    private static final int recencyHalfLifeDays = 0;
+    public GitHubRepositoryWithScore score(GitHubRepositoryData repo) {
+        double raw = computeRawScore(repo);
+        return new GitHubRepositoryWithScore(repo, raw, 0.0);
+    }
 
     public void assignNormalizedScores(List<GitHubRepositoryWithScore> repos, double maxRawScore) {
-        if (repos == null || repos.isEmpty()) {
-            return;
-        }
+        if (repos == null || repos.isEmpty() || maxRawScore <= 0.0) return;
         for (GitHubRepositoryWithScore item : repos) {
-            if (maxRawScore > 0.0) {
-                item.normalizedScore = 100.0 * item.score / maxRawScore;
-            }
+            item.normalizedScore = 100.0 * item.score / maxRawScore;
         }
     }
 
+    private double computeRawScore(GitHubRepositoryData repo) {
+        double stars = Math.log10(1 + repo.getStargazersCount());
+        double forks = Math.log10(1 + repo.getForksCount());
+        double recency = computeFreshness(repo.getUpdatedAt());
+        return starsWeight * stars + forksWeight * forks + recencyWeight * recency;
+    }
+
+    private double computeFreshness(String updatedAtIso) {
+        var updated = java.time.OffsetDateTime.parse(updatedAtIso);
+        long days = Math.max(0, java.time.temporal.ChronoUnit.DAYS.between(updated, java.time.OffsetDateTime.now()));
+        int halfLife = recencyHalfLifeDays > 0 ? recencyHalfLifeDays : 1; // avoid /0
+        return Math.exp(-Math.log(2) * days / halfLife);
+    }
+
+    /** Dumb DTO (no logic) */
     public static class GitHubRepositoryWithScore {
         public GitHubRepositoryData repo;
         public double score;
         public double normalizedScore;
-
-        public GitHubRepositoryWithScore(GitHubRepositoryData repo) {
+        public GitHubRepositoryWithScore(GitHubRepositoryData repo, double score, double normalizedScore) {
             this.repo = repo;
-            this.score = computeRawScore(repo);
-            this.normalizedScore = 0.0;
-        }
-
-        private static double computeRawScore(GitHubRepositoryData repo) {
-            double starsScore = log10(1 + repo.getStargazersCount());
-            double forksScore = log10(1 + repo.getForksCount());
-            double recencyScore = computeFreshness(repo.getUpdatedAt());
-            return 0.6 * starsScore + 0.25 * forksScore + 0.15 * recencyScore;
-        }
-
-        private static double computeFreshness(String updatedAtIso) {
-            try {
-                OffsetDateTime updated = OffsetDateTime.parse(updatedAtIso);
-                long days = max(0, ChronoUnit.DAYS.between(updated, OffsetDateTime.now()));
-                return exp(-log(2) * days / HALF_LIFE_DAYS);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            this.score = score;
+            this.normalizedScore = normalizedScore;
         }
     }
 }
