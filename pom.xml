@@ -67,11 +67,25 @@
 
     <build>
         <plugins>
+            <!-- Spring Boot: produce an executable (fat) jar -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <!-- Optional: only if auto-detection fails
+                <configuration>
+                  <mainClass>com.github.popularityscore.YourApplication</mainClass>
+                </configuration>
+                -->
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -83,5 +97,6 @@
             </plugin>
         </plugins>
     </build>
+
 </project>
 
