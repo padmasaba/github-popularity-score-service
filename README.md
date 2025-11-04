@@ -1,9 +1,9 @@
 # Github Popularity Score Service — Keycloak Integration & Docker Compose Deployment
 
 **Github Popularity Score Service** is a backend Spring Boot application that fetches GitHub repositories for a given language, earliest creation date, page number and per page limit. 
-It calculates a **popularity score** based on Stars, Forks and Recency of updates. This project integrates Keycloak authentication with Spring Boot and Swagger UI.
+It calculates a **popularity score** based on Stars, Forks and Recency of updates. This project integrates **Keycloak authentication** with Spring Boot and Swagger UI.
 Swagger gets loaded publicly, and on clicking Authorize it redirects users to Keycloak OIDC for login (oauth can be enabled or disabled).
-The application uses Docker Compose to orchestrate both the API and Keycloak for secure, scalable, and easily reproducible deployments.
+The application uses **Docker Compose** to orchestrate both the API and Keycloak for **secure, scalable, and easily reproducible deployments**.
 
 ## 🧮 **Scoring Algorithm & Configuration**
 The popularity score is calculated by weighted formula (assumed weights: stars 60%, forks 25%, recency 15%, configurable). We normalize and transform the data using logarithmic and exponential calculation.
