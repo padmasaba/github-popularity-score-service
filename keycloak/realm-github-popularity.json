@@ -1,0 +1,40 @@
+{
+  "realm": "github-popularity",
+  "enabled": true,
+
+  "roles": {
+    "realm": [
+      { "name": "user", "description": "Standard user role" },
+      { "name": "admin", "description": "Administrator role" }
+    ]
+  },
+
+  "clients": [
+    {
+      "clientId": "github-popularity-api",
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "serviceAccountsEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "attributes": { "pkce.code.challenge.method": "S256" },
+      "redirectUris": ["http://localhost:8080/swagger-ui/oauth2-redirect.html"],
+      "webOrigins": ["http://localhost:8080"],
+      "fullScopeAllowed": true
+    }
+  ],
+
+  "users": [
+    {
+      "username": "psa",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "PSA",
+      "lastName": "User",
+      "credentials": [
+        { "type": "password", "value": "psa", "temporary": false }
+      ],
+      "realmRoles": ["user"]
+    }
+  ]
+}

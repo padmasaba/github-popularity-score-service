@@ -1,36 +1,27 @@
-version: "3.9"
-
 services:
   keycloak:
     image: quay.io/keycloak/keycloak:24.0
-    command: start-dev
+    command: start-dev --import-realm
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
       KC_HEALTH_ENABLED: "true"
-      # optional: reduce memory if your machine is tight
-      JAVA_OPTS: "-Xms256m -Xmx768m"
+    volumes:
+      - ./keycloak/realm-github-popularity.json:/opt/keycloak/data/import/realm-github-popularity.json:ro
     ports:
       - "8180:8080"
-    healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health/ready"]
-      interval: 5s
-      timeout: 3s
-      retries: 40
     restart: unless-stopped
     networks: [appnet]
 
   app:
-    image: padmasaba/github-popularity   # or build: .
+    image: ghcr.io/padmasaba/github-popularity-score-service:latest
     environment:
       SPRING_PROFILES_ACTIVE: keycloak
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: "http://keycloak:8080/realms/github-popularity"
-      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: "http://keycloak:8080/realms/github-popularity"
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "http://keycloak:8080/realms/github-popularity/protocol/openid-connect/certs"
     ports:
       - "8080:8080"
     depends_on:
-      keycloak:
-        condition: service_healthy
+      - keycloak
     networks: [appnet]
 
 networks:
