@@ -7,25 +7,31 @@ services:
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HEALTH_ENABLED: "true"
+      # optional: reduce memory if your machine is tight
+      JAVA_OPTS: "-Xms256m -Xmx768m"
     ports:
-      - "8180:8080"          # <-- expose to host so browser can reach Keycloak at http://localhost:8180
-    networks:
-      - appnet
+      - "8180:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health/ready"]
+      interval: 5s
+      timeout: 3s
+      retries: 40
+    restart: unless-stopped
+    networks: [appnet]
 
-  github-popularity-api:
-    build: .
-    # or: image: your/image:tag
+  app:
+    image: padmasaba/github-popularity   # or build: .
     environment:
-      # Resource server validation done INSIDE Docker network:
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/github-popularity
-      # If you also use oauth2 client (not only resource server), point provider to keycloak:8080:
-      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/github-popularity
+      SPRING_PROFILES_ACTIVE: keycloak
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: "http://keycloak:8080/realms/github-popularity"
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: "http://keycloak:8080/realms/github-popularity"
     ports:
-      - "8080:8080"          # Swagger UI will be at http://localhost:8080/swagger-ui/index.html
+      - "8080:8080"
     depends_on:
-      - keycloak
-    networks:
-      - appnet
+      keycloak:
+        condition: service_healthy
+    networks: [appnet]
 
 networks:
   appnet:
