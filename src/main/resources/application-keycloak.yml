@@ -22,6 +22,9 @@ spring:
         provider:
           keycloak:
             issuer-uri: http://localhost:8180/realms/github-popularity
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/github-popularity
 
 github:
   api:
