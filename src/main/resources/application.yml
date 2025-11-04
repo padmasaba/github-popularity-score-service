@@ -3,7 +3,7 @@ server:
 
 app:
   auth:
-    enabled: true
+    enabled: false
 
 spring:
   security:
