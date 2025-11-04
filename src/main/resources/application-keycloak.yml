@@ -1,0 +1,22 @@
+app:
+  security:
+    enabled: true
+
+spring:
+  profiles: keycloak
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/github-popularity
+      client:
+        registration:
+          keycloak:
+            client-id: github-popularity-api
+            client-authentication-method: none          # Public client (no secret)
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: openid, profile, email
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8180/realms/github-popularity
