@@ -11,20 +11,33 @@ spring:
       on-profile: keycloak
   security:
     oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://host.docker.internal:8180/realms/github-popularity
       client:
         registration:
           keycloak:
             client-id: github-popularity-api
-            client-authentication-method: none
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-            scope: openid, profile, email
+            scope: [openid, profile]
         provider:
           keycloak:
             issuer-uri: http://host.docker.internal:8180/realms/github-popularity
-      resourceserver:
-        jwt:
-          issuer-uri: http://host.docker.internal:8180/realms/github-popularity
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    url: /v3/api-docs
+    oauth:
+      client-id: github-popularity-api
+      use-pkce-with-authorization-code-grant: true
+      scopes: openid,profile
+    oauth2-redirect-url: http://localhost:8080/swagger-ui/oauth2-redirect.html
+
 
 github:
   api:
