@@ -11,8 +11,8 @@ public class OpenApiSecurityConfig {
 
     @Bean
     public OpenAPI api() {
-        String authUrl  = "http://localhost:8080/realms/github-popularity/protocol/openid-connect/auth";
-        String tokenUrl = "http://localhost:8080/realms/github-popularity/protocol/openid-connect/token";
+        String authUrl  = "http://localhost:8180/realms/github-popularity/protocol/openid-connect/auth";
+        String tokenUrl = "http://localhost:8180/realms/github-popularity/protocol/openid-connect/token";
 
         OAuthFlow flow = new OAuthFlow()
                 .authorizationUrl(authUrl)
