@@ -2,7 +2,8 @@
 
 **Github Popularity Score Service** is a backend Spring Boot application that fetches GitHub repositories for a given language, earliest creation date, page number and per page limit. 
 It calculates a **popularity score** based on Stars, Forks and Recency of updates. This project integrates Keycloak authentication with Spring Boot and Swagger UI.
-Swagger loads publicly, and on clicking Authorize it redirects users to Keycloak for login (oauth can be enabled or disabled).
+Swagger gets loaded publicly, and on clicking Authorize it redirects users to Keycloak OIDC for login (oauth can be enabled or disabled).
+The application uses Docker Compose to orchestrate both the API and Keycloak for secure, scalable, and easily reproducible deployments.
 
 ## 🧮 **Scoring Algorithm & Configuration**
 The popularity score is calculated by weighted formula (assumed weights: stars 60%, forks 25%, recency 15%, configurable). We normalize and transform the data using logarithmic and exponential calculation.
@@ -256,7 +257,15 @@ To stop:
 docker compose --profile secure down -v
 ```
 
-### 💪 5. Summary Commands
+### ⚡ 5. Scalability & Performance
+
+Docker Compose allows seamless horizontal scaling of the GitHub Popularity Score Service — each component (API, Keycloak, Swagger UI) runs in its own container for isolation and efficiency.
+We can easily scale services for performance testing or production workloads using:
+```bash
+docker compose --profile secure up -d --scale app-secure=3
+```
+
+### 💪 6. Summary Commands
 | Task | Command |
 |------|----------|
 | Start without security | `docker compose --profile noauth up -d` |
@@ -294,15 +303,19 @@ popularity.score:
 ## 🧰 **Tech Stack**
 
 | Component | Technology |
-|------------|-------------|
+|-------|-------------|
 | **Language** | Java 17+ |
 | **Framework** | Spring Boot 3.x |
 | **HTTP Client** | RestTemplate |
-| **Documentation** | Springdoc OpenAPI (Swagger UI) |
+| **Security & Authentication** | Keycloak (OAuth2 / OpenID Connect) |
+| **API Documentation** | Springdoc OpenAPI (Swagger UI) |
 | **Build Tool** | Maven |
 | **Testing** | JUnit 5 + Mockito |
 | **Containerization** | Docker |
-| **CI/CD** | GitHub Actions |
+| **Orchestration** | Docker Compose (Multi-container setup with Keycloak & API) |
+| **Continuous Integration / Delivery** | GitHub Actions |
+| **Configuration Management** | Spring Profiles (application.yml, application-keycloak.yml) |
+| **Scalability Ready** | Load Balancer (optional for multi-instance scaling) |
 | **Logging** | SLF4J + Logback |
 
 ## 📘 **API Endpoint**
@@ -372,11 +385,9 @@ Then visit:
 ⚡ Reactive WebClient Integration
 Switch to asynchronous HTTP for non-blocking performance.
 
-🧩 Redis Caching Support
+🧩 Redis Caching Support / Database / Persistence
 Cache frequent GitHub queries for faster responses and API efficiency.
+If applicable, e.g., PostgreSQL / Oracle / In-memory H2 can also be extended and integrated
 
 📊 Extended Scoring Model
 Include metrics such as issues, pull requests, and recency decay improvements.
-
-🧱 Composite Scoring Dashboard
-Visualize repository popularity across languages and time using aggregated scoring data.
