@@ -5,21 +5,25 @@ app:
   security:
     enabled: true
 
-
 spring:
+  config:
+    activate:
+      on-profile: keycloak
   security:
     oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/github-popularity
       client:
         registration:
           keycloak:
             client-id: github-popularity-api
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-            scope: openid,profile
+            scope: [openid, profile]
         provider:
           keycloak:
             issuer-uri: http://localhost:8180/realms/github-popularity
-
 
 springdoc:
   api-docs:
