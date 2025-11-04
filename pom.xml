@@ -74,12 +74,6 @@
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
         </dependency>
 
-        <!-- Needed for OAuth2 client (Swagger's authorize flow) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-oauth2-client</artifactId>
-        </dependency>
-
         <!-- Swagger UI -->
         <dependency>
             <groupId>org.springdoc</groupId>
