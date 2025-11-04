@@ -115,7 +115,7 @@ Example Weighted Score (weights: stars=0.6, forks=0.25, recency=0.15):
     ```
 
 - **Swagger UI Integration**  
-  Interactive API documentation available at **`/swagger-ui.html`** for quick testing.
+  Interactive API documentation available at **`/swagger-ui/index.html`** for quick testing.
 
 - **Unit-Tested with JUnit & Mockito**  
   Includes clean test cases for controller and service layers to ensure correctness and maintainability.
@@ -227,7 +227,7 @@ docker compose --profile noauth up -d
 
 - Starts `app` only
 - Loads `application.yml`
-- Visit: 🔗 http://localhost:8080/swagger-ui.html
+- Visit: 🔗 http://localhost:8080/swagger-ui/index.html
 
 To stop:
 ```bash
@@ -249,7 +249,7 @@ docker compose --profile secure up -d
     - Admin: `admin` / `admin`
     - Realm: `github-popularity`
     - Client: `github-popularity-api`
-- Swagger UI → http://localhost:8080/swagger-ui.html
+- Swagger UI → http://localhost:8080/swagger-ui/index.html
     - Click **Authorize** → Keycloak login (`psa` / `psa` if configured)
 
 To stop:
@@ -362,7 +362,7 @@ This will start the application on http://localhost:8080.
 
 Once the app is running, explore and test the API directly from the Swagger interface. The Swagger UI provides an interactive API console to execute requests and view live responses.
 
-👉 http://localhost:8080/swagger-ui.html
+👉 http://localhost:8080/swagger-ui/index.html
 
 
 ### 🐳 **Docker Support**
@@ -377,7 +377,7 @@ docker build -t github-popularity-score-service .
 docker run -p 8080:8080 github-popularity-score-service
 ```
 Then visit:
-👉 http://localhost:8080/swagger-ui.html
+👉 http://localhost:8080/swagger-ui/index.html
 
 
 ## 🧠 **Future Enhancements**
