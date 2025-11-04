@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8180:8080"          # <-- expose to host so browser can reach Keycloak at http://localhost:8180
+    networks:
+      - appnet
+
+  github-popularity-api:
+    build: .
+    # or: image: your/image:tag
+    environment:
+      # Resource server validation done INSIDE Docker network:
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/github-popularity
+      # If you also use oauth2 client (not only resource server), point provider to keycloak:8080:
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/github-popularity
+    ports:
+      - "8080:8080"          # Swagger UI will be at http://localhost:8080/swagger-ui/index.html
+    depends_on:
+      - keycloak
+    networks:
+      - appnet
+
+networks:
+  appnet:
+    driver: bridge
