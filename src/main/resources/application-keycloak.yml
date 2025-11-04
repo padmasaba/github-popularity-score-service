@@ -7,25 +7,19 @@ app:
 
 
 spring:
-  config:
-    activate:
-      on-profile: keycloak
   security:
     oauth2:
-      resourceserver:
-        jwt: { }
       client:
         registration:
           keycloak:
             client-id: github-popularity-api
             authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             scope: openid,profile
         provider:
           keycloak:
-            authorization-uri: http://localhost:8180/realms/github-popularity/protocol/openid-connect/auth
-            token-uri:          http://localhost:8180/realms/github-popularity/protocol/openid-connect/token
-            user-info-uri:      http://localhost:8180/realms/github-popularity/protocol/openid-connect/userinfo
-            jwk-set-uri:        http://localhost:8180/realms/github-popularity/protocol/openid-connect/certs
+            issuer-uri: http://localhost:8180/realms/github-popularity
+
 
 springdoc:
   api-docs:
