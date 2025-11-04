@@ -21,10 +21,10 @@ spring:
             scope: openid, profile, email
         provider:
           keycloak:
-            issuer-uri: http://host.docker.internal:8180/realms/github-popularity
+            issuer-uri: http://localhost:8180/realms/github-popularity
       resourceserver:
         jwt:
-          issuer-uri: http://host.docker.internal:8180/realms/github-popularity
+          issuer-uri: http://localhost:8180/realms/github-popularity
 
 github:
   api:
