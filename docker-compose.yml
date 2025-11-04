@@ -1,19 +1,31 @@
 services:
+  # Runs ONLY when you enable the "secure" profile
   keycloak:
     image: quay.io/keycloak/keycloak:24.0
     command: start-dev --import-realm
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-      KC_HEALTH_ENABLED: "true"
     volumes:
       - ./keycloak/realm-github-popularity.json:/opt/keycloak/data/import/realm-github-popularity.json:ro
     ports:
       - "8180:8080"
     restart: unless-stopped
     networks: [appnet]
+    profiles: [secure]
 
+  # No-security app (default profile = "noauth")
   app:
+    image: ghcr.io/padmasaba/github-popularity-score-service:latest
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+    ports:
+      - "8080:8080"
+    networks: [appnet]
+    profiles: [noauth]        # <-- only runs when you enable "noauth"
+
+  # Security-enabled app (runs only with "secure" profile)
+  app-secure:
     image: ghcr.io/padmasaba/github-popularity-score-service:latest
     environment:
       SPRING_PROFILES_ACTIVE: keycloak
@@ -23,6 +35,7 @@ services:
     depends_on:
       - keycloak
     networks: [appnet]
+    profiles: [secure]        # <-- only runs when you enable "secure"
 
 networks:
   appnet:

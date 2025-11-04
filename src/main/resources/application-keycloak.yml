@@ -15,8 +15,7 @@ spring:
       resourceserver:
         jwt:
           # Validate via JWKS only (matches your compose env/Keycloak service)
-          jwk-set-uri: http://keycloak:8080/realms/github-popularity/protocol/openid-connect/certs
-
+          jwk-set-uri: ${JWK_SET_URI:http://keycloak:8080/realms/github-popularity/protocol/openid-connect/certs}
 
 springdoc:
   api-docs:

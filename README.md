@@ -185,6 +185,87 @@ Example Weighted Score (weights: stars=0.6, forks=0.25, recency=0.15):
 - **Lightweight & Extensible Architecture**  
   Layered design with clear separation of concerns between Controller, Service, and Exception Handling layers — easy to extend for additional GitHub APIs (e.g., commits, contributors, issues).
 
+
+## 🐳 Docker Compose Deployment (With & Without Keycloak Security)
+
+The application can be run either **with** or **without Keycloak authentication**, using Docker Compose profiles.
+
+### 🧹 1. File Structure
+
+```
+github-popularity-score-service/
+├─ docker-compose.yml
+├─ keycloak/
+│  └─ realm-github-popularity.json
+├─ src/
+│  └─ main/resources/
+│     ├─ application.yml
+│     └─ application-keycloak.yml
+```
+
+- `application.yml` → runs **without security**
+- `application-keycloak.yml` → runs **with Keycloak security**
+- `realm-github-popularity.json` → Keycloak realm and client configuration (auto-imported)
+
+---
+
+### 👢 2. Docker Compose Profiles
+
+The compose file defines two profiles:
+- `noauth` → starts app without Keycloak
+- `secure` → starts Keycloak + secured app
+
+---
+
+### ▶️ 3. Run Without Security
+Run only the app with Swagger (no Keycloak):
+
+```bash
+docker compose --profile noauth up -d
+```
+
+- Starts `app` only
+- Loads `application.yml`
+- Visit: 🔗 http://localhost:8080/swagger-ui.html
+
+To stop:
+```bash
+docker compose --profile noauth down -v
+```
+
+---
+
+### 🔐 4. Run With Keycloak Security
+Run with Keycloak authentication enabled:
+
+```bash
+docker compose --profile secure up -d
+```
+
+- Starts `keycloak` + `app-secure`
+- Loads `application-keycloak.yml`
+- Keycloak console → http://localhost:8180
+    - Admin: `admin` / `admin`
+    - Realm: `github-popularity`
+    - Client: `github-popularity-api`
+- Swagger UI → http://localhost:8080/swagger-ui.html
+    - Click **Authorize** → Keycloak login (`psa` / `psa` if configured)
+
+To stop:
+```bash
+docker compose --profile secure down -v
+```
+
+### 💪 5. Summary Commands
+| Task | Command |
+|------|----------|
+| Start without security | `docker compose --profile noauth up -d` |
+| Stop without security | `docker compose --profile noauth down -v` |
+| Start with Keycloak security | `docker compose --profile secure up -d` |
+| Stop with Keycloak security | `docker compose --profile secure down -v` |
+
+This enables easy switching between unsecured and secured deployments for testing and development.
+
 ## 🌟 **Configurable Popularity Scoring**
 
 The service computes a **popularity score** for each GitHub repository based on three weighted factors:  
